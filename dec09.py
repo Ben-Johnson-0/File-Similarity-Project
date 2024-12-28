@@ -13,7 +13,7 @@ import os
 import sys
 import numpy as np
 import filesim_helper as fsh
-from sympy import primerange    # You'll probably need to pip3 install sympy
+from sympy import primerange
 from random import choice, randrange
 
 # Obtain file names from a given directory
