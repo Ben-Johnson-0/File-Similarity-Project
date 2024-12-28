@@ -6,7 +6,7 @@
 #   - All connected component groups
 
 # Can be ran with:
-# python dec09.py .\TestDirs\smallAB
+# python main.py .\TestDirs\smallAB
 # minVal <= 2
 
 import os
@@ -17,7 +17,7 @@ from sympy import primerange
 from random import choice, randrange
 
 # Obtain file names from a given directory
-def get_fnames(files_dir, justNames=False):
+def get_fnames(files_dir:str, justNames:bool=False) -> list:
     dir_path = os.path.abspath(files_dir)
     file_names = [os.path.join(dir_path, x) for x in os.listdir(files_dir)]
     file_paths = [x for x in file_names if os.path.isfile(x)]
@@ -29,7 +29,7 @@ def get_fnames(files_dir, justNames=False):
     return file_names
 
 # Build the charfunc matrix from important shingles and a list of file paths
-def all_charfunc(imp_shingles, files_paths):
+def all_charfunc(imp_shingles:dict, file_paths:list) -> np.array:
     # Build base matrix
     n = len(imp_shingles)
     mat = np.zeros((n,len(file_paths)), dtype=np.uint8)
@@ -41,11 +41,11 @@ def all_charfunc(imp_shingles, files_paths):
     return mat
 
 # lambda function generator
-def randfun(a,b,n):
+def randfun(a:int, b:int, n:int) -> function:
     return lambda x: (a*x+b) % n
 
 # Move stuff into this function when more settled
-def minhash(mat, num_minhashes, max_rows):
+def minhash(mat:np.array, num_minhashes:int, max_rows:int) -> np.array:
     n = mat.shape[0]            # number of shingles
     n_files = mat.shape[1]      # number of files
     oddprimes = np.array(list(primerange(2, n)))
@@ -68,7 +68,7 @@ def minhash(mat, num_minhashes, max_rows):
 
 # Given a minhash matrix construct an adjacency matrix of the files
 #  with edges where there is a vote value of at least reqVotes
-def sim_vote(hashmat, reqVotes, blocks, rows_per_block):
+def sim_vote(hashmat:np.array, reqVotes:int, blocks:int, rows_per_block:int) -> np.array:
     if (blocks*rows_per_block != hashmat.shape[0]):
         print(f"Error: sim_vote(4), blocks*rows_per_block should be equal to hashmat rows.\n"
               f" You had {blocks} blocks and {rows_per_block} rows per block. Hash matrix had {hashmat.shape[0]} rows",
@@ -102,7 +102,7 @@ def sim_vote(hashmat, reqVotes, blocks, rows_per_block):
     return adjmat.astype(np.uint8)          # Convert to 0s and 1s and return it
 
 # Turn an edge list into an adjacency list that can be used to find strongly connected components
-def adjmat2adjlist(adjmat):
+def adjmat2adjlist(adjmat:np.array) -> list:
     n = adjmat.shape[0]
     adjlist = [{
                 'vis'    : False,
@@ -112,13 +112,13 @@ def adjmat2adjlist(adjmat):
 
     return adjlist
 
-def find_not_vis(verts, n):    # find an unvisited vertex
+def find_not_vis(verts:list, n:int) -> int:    # find an unvisited vertex
     for i in range(n):
         if not verts[i]['vis']:
             return i
     return None
 
-def visit(k, verts, c_dict, c_ind):
+def visit(k:int, verts:list, c_dict:dict, c_ind:int) -> None:
     if not verts[k]['vis']:                 # if it hasn't been visited
         # print(k, end=' ')
         if (c_dict.get(c_ind) != None):
@@ -128,14 +128,14 @@ def visit(k, verts, c_dict, c_ind):
         verts[k]['vis'] = True              # mark it visited
         scan(k, verts, c_dict, c_ind)
 
-def scan(k, verts, c_dict, c_ind):
+def scan(k:int, verts:list, c_dict:dict, c_ind:int) -> None:
     verts[k]['scan'] = True
     for i in verts[k]['nbr']:                   # for each neighbor of scanned vertex
         if not verts[i]['vis']:                 # if it hasn't been visited
             visit(i, verts, c_dict, c_ind)
 
 # Create a dictionary of important shingles. Keep only the shingles that appear at least minVal times
-def imp_shins(file_paths, minVal = 4):
+def imp_shins(file_paths:list, minVal:int = 4) -> dict:
     shin_freq = dict()      # Shingle Frequency
     # Loop through the files retrieving all of our shingles
     for fname in file_paths:
@@ -154,6 +154,7 @@ def imp_shins(file_paths, minVal = 4):
     # for k in ordered_shin.keys():
     #     print(k)
     return ordered_shin
+
 
 if __name__ == "__main__":
     if(len(sys.argv) < 2):
